@@ -56,13 +56,13 @@ public class Problem02_DragonAccounting {
 
             // Step 2 - Check for Raise
             for (Employee employee : hiredEmployees) {
-                if (employee.totalWorkdays % 365 == 0 && employee.totalWorkdays != 0) {
+                if (employee.totalWorkdays % 365 == 0) {
                     employee.monthSalary = employee.monthSalary.multiply(RAISE);
                 }
             }
 
             // Step 3 - Give salaries
-            if (totalWorkdays % 30 == 0 && totalWorkdays != 0) {
+            if (totalWorkdays % 30 == 0) {
                 for (Employee employee : hiredEmployees) {
                     BigDecimal workDays = new BigDecimal(employee.workdaysThisMonth);
                     employee.workdaysThisMonth = 0;
