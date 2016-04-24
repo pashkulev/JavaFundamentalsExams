@@ -3,7 +3,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Problem04_GUnit {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String regex = "^([A-Z][a-zA-Z0-9]+)\\s\\|\\s([A-Z][a-zA-Z0-9]+)\\s\\|\\s([A-Z][a-zA-Z0-9]+)$";
         Pattern pattern = Pattern.compile(regex);
