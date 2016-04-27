@@ -73,7 +73,7 @@ public class Problem03_CriticalBreakpoint {
             //And since we have to use a power method for Integer MaxValue or even bigger values because of the constraints,
             //we enter the world of BigInteger
             //In the next line I'm doing 2 operations. I'm declaring a BigInteger variable "result" that takes the value of the
-            //actual critical ratio and hen I power it by the linesCount
+            //actual critical ratio and then I power it by the linesCount
             BigInteger result = BigInteger.valueOf(actualCriticalRatio).pow(linesCount);
 
             //Now I just take the remainder of the division between the result and the BigInteger value of linesCount
