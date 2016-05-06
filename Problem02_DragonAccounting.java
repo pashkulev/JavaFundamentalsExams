@@ -5,31 +5,7 @@ import java.util.Scanner;
 public class Problem02_DragonAccounting {
     private static BigDecimal capital;
     private static final BigDecimal WORKDAYS_MONTHLY = new BigDecimal("30");
-    private static final BigDecimal RAISE = new BigDecimal("1.06");
-
-    public static class Employee {
-        int workdaysThisMonth;
-        int totalWorkdays;
-        BigDecimal monthSalary;
-        BigDecimal dailySalary;
-
-        public Employee (BigDecimal salary) {
-            this.workdaysThisMonth = 1;
-            this.totalWorkdays = 1;
-            this.monthSalary = salary;
-            this.dailySalary = calculateDailySalary(salary);
-        }
-
-        public static BigDecimal calculateDailySalary(BigDecimal salary) {
-            BigDecimal result = salary.divide(WORKDAYS_MONTHLY, 9, BigDecimal.ROUND_CEILING);
-            String strResult = result.toString();
-            int separatorIndex = strResult.indexOf(".");
-            int digitsAfterSeparator = strResult.length() - separatorIndex - 1;
-            if (digitsAfterSeparator > 7)
-                strResult = strResult.substring(0, separatorIndex + 8);
-            return new BigDecimal(strResult);
-        }
-    }
+    private static final BigDecimal RAISE = new BigDecimal("1.006");
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -50,7 +26,7 @@ public class Problem02_DragonAccounting {
 
             // Step 1 - Hire employees
             for (long i = 0; i < hired; i++) {
-                Employee worker = new Employee(salary);
+                Employee worker = new Employee(salary, calculateDailySalary(salary));
                 hiredEmployees.add(worker);
             }
 
@@ -58,6 +34,7 @@ public class Problem02_DragonAccounting {
             for (Employee employee : hiredEmployees) {
                 if (employee.totalWorkdays % 365 == 0) {
                     employee.monthSalary = employee.monthSalary.multiply(RAISE);
+                    employee.dailySalary = calculateDailySalary(employee.monthSalary);
                 }
             }
 
@@ -98,9 +75,9 @@ public class Problem02_DragonAccounting {
         }
 
         if (hasBankrupted) {
-            System.out.printf("BANKRUPTCY: %s%n", processOutput(capital));
+            System.out.printf("BANKRUPTCY: %s%n", capital.abs().setScale(4, BigDecimal.ROUND_DOWN));
         } else {
-            System.out.printf("%d %s%n", hiredEmployees.size(), processOutput(capital));
+            System.out.printf("%d %s%n", hiredEmployees.size(), capital.setScale(4, BigDecimal.ROUND_DOWN));
         }
     }
 
@@ -111,24 +88,28 @@ public class Problem02_DragonAccounting {
             case "Taxes":
                 capital = capital.subtract(value);
                 break;
-            case "Product development":
-            case "Unconditional funding":
+            default:
                 capital = capital.add(value);
                 break;
         }
     }
 
-    public static String processOutput(BigDecimal capital) {
-        String output = capital.abs().toString();
-        int separatorIndex = output.indexOf(".");
-        int digitsAfterSeparator = output.length() - separatorIndex - 1;
-        if (digitsAfterSeparator < 4) {
-            for (int i = 0; i < 4 - digitsAfterSeparator; i++) {
-                output += 0;
-            }
-        } else if (digitsAfterSeparator > 4) {
-            output = output.substring(0, separatorIndex + 5);
-        }
-        return output;
+    public static BigDecimal calculateDailySalary(BigDecimal salary) {
+        return salary.divide(WORKDAYS_MONTHLY, 9, BigDecimal.ROUND_UP)
+                .setScale(7, BigDecimal.ROUND_DOWN);
+    }
+}
+
+class Employee {
+    int workdaysThisMonth;
+    int totalWorkdays;
+    BigDecimal monthSalary;
+    BigDecimal dailySalary;
+
+    public Employee (BigDecimal salary, BigDecimal dailySalary) {
+        this.workdaysThisMonth = 1;
+        this.totalWorkdays = 1;
+        this.monthSalary = salary;
+        this.dailySalary = dailySalary;
     }
 }
