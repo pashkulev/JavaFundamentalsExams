@@ -3,14 +3,14 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Problem02_DragonAccounting {
-    private static BigDecimal capital;
     private static final BigDecimal WORKDAYS_MONTHLY = new BigDecimal("30");
     private static final BigDecimal RAISE = new BigDecimal("1.006");
+    private static BigDecimal capital;
+    private static ArrayList<WorkersGroup> hiredEmployees = new ArrayList<>();
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         capital = new BigDecimal(sc.nextLine());
-        ArrayList<Employee> hiredEmployees = new ArrayList<>();
         boolean hasBankrupted = false;
         int totalWorkdays = 1;
 
@@ -25,33 +25,29 @@ public class Problem02_DragonAccounting {
             BigDecimal salary = new BigDecimal(args[2]);
 
             // Step 1 - Hire employees
-            for (long i = 0; i < hired; i++) {
-                Employee worker = new Employee(salary, calculateDailySalary(salary));
-                hiredEmployees.add(worker);
-            }
+            WorkersGroup workers = new WorkersGroup(salary, calculateDailySalary(salary), BigDecimal.valueOf(hired));
+            hiredEmployees.add(workers);
 
             // Step 2 - Check for Raise
-            for (Employee employee : hiredEmployees) {
-                if (employee.totalWorkdays % 365 == 0) {
-                    employee.monthSalary = employee.monthSalary.multiply(RAISE);
-                    employee.dailySalary = calculateDailySalary(employee.monthSalary);
+            for (WorkersGroup workersGroup : hiredEmployees) {
+                if (workersGroup.totalWorkdays % 365 == 0) {
+                    workersGroup.monthSalary = workersGroup.monthSalary.multiply(RAISE);
+                    workersGroup.dailySalary = calculateDailySalary(workersGroup.monthSalary);
                 }
             }
 
             // Step 3 - Give salaries
             if (totalWorkdays % 30 == 0) {
-                for (Employee employee : hiredEmployees) {
-                    BigDecimal workDays = new BigDecimal(employee.workdaysThisMonth);
-                    employee.workdaysThisMonth = 0;
-                    BigDecimal employeeSalary = workDays.multiply(employee.dailySalary);
-                    capital = capital.subtract(employeeSalary);
+                for (WorkersGroup workersGroup : hiredEmployees) {
+                    BigDecimal workDays = new BigDecimal(workersGroup.workdaysThisMonth);
+                    workersGroup.workdaysThisMonth = 0;
+                    BigDecimal groupSalary = workDays.multiply(workersGroup.dailySalary).multiply(workersGroup.count);
+                    capital = capital.subtract(groupSalary);
                 }
             }
 
             // Step 4 - Fire employees
-            for (long i = 0; i < fired && hiredEmployees.size() != 0; i++) {
-                hiredEmployees.remove(0);
-            }
+            fireWorkers(fired);
 
             // Step 5 - Check for additional income/expense
             for (int i = 3; i < args.length; i++) {
@@ -68,7 +64,7 @@ public class Problem02_DragonAccounting {
 
             // Update variables
             totalWorkdays++;
-            for (Employee employee : hiredEmployees) {
+            for (WorkersGroup employee : hiredEmployees) {
                 employee.totalWorkdays++;
                 employee.workdaysThisMonth++;
             }
@@ -77,7 +73,27 @@ public class Problem02_DragonAccounting {
         if (hasBankrupted) {
             System.out.printf("BANKRUPTCY: %s%n", capital.abs().setScale(4, BigDecimal.ROUND_DOWN));
         } else {
-            System.out.printf("%d %s%n", hiredEmployees.size(), capital.setScale(4, BigDecimal.ROUND_DOWN));
+            BigDecimal totalWorkers = BigDecimal.ZERO;
+            for (WorkersGroup workersGroup : hiredEmployees) {
+                totalWorkers = totalWorkers.add(workersGroup.count);
+            }
+            System.out.printf("%s %s%n", totalWorkers.toString(), capital.setScale(4, BigDecimal.ROUND_DOWN));
+        }
+    }
+
+    public static void fireWorkers(long firedWorkers) {
+        while (firedWorkers > 0) {
+            if (hiredEmployees.get(0).count.longValue() >= firedWorkers) {
+                BigDecimal newValue = hiredEmployees.get(0).count.subtract(BigDecimal.valueOf(firedWorkers));
+                hiredEmployees.get(0).count = newValue;
+                if (hiredEmployees.get(0).count.equals(BigDecimal.ZERO)) {
+                    hiredEmployees.remove(0);
+                }
+                firedWorkers = 0;
+            } else {
+                firedWorkers -= hiredEmployees.get(0).count.longValue();
+                hiredEmployees.remove(0);
+            }
         }
     }
 
@@ -100,16 +116,18 @@ public class Problem02_DragonAccounting {
     }
 }
 
-class Employee {
+class WorkersGroup {
     int workdaysThisMonth;
     int totalWorkdays;
     BigDecimal monthSalary;
     BigDecimal dailySalary;
+    BigDecimal count;
 
-    public Employee (BigDecimal salary, BigDecimal dailySalary) {
+    public WorkersGroup(BigDecimal salary, BigDecimal dailySalary, BigDecimal count) {
         this.workdaysThisMonth = 1;
         this.totalWorkdays = 1;
         this.monthSalary = salary;
         this.dailySalary = dailySalary;
+        this.count = count;
     }
 }
