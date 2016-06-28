@@ -21,19 +21,19 @@ public class FamilyTree {
         String searchPersonKey = reader.readLine();
         boolean isName = Character.isLetter(searchPersonKey.charAt(0));
 
-        String nameToNameRegex = "^([A-Z][a-z]+\\s+[A-Z][a-z]+)\\s+-\\s+([A-Z][a-z]+\\s+[A-Z][a-z]+)$";
+        String nameToNameRegex = "^(\\w+\\s+\\w+)\\s*-\\s*(\\w+\\s+\\w+)$";
         Pattern nameToNamePattern = Pattern.compile(nameToNameRegex);
 
-        String nameToDateRegex = "^([A-Z][a-z]+\\s+[A-Z][a-z]+)\\s+-\\s+(\\d{1,2}/\\d{1,2}/\\d{4})$";
+        String nameToDateRegex = "^(\\w+\\s+\\w+)\\s*-\\s*(\\d{1,2}/\\d{1,2}/\\d{2,4})$";
         Pattern nameToDatePattern = Pattern.compile(nameToDateRegex);
 
-        String dateToNameRegex = "^(\\d{1,2}/\\d{1,2}/\\d{4})\\s+-\\s+([A-Z][a-z]+\\s+[A-Z][a-z]+)$";
+        String dateToNameRegex = "^(\\d{1,2}/\\d{1,2}/\\d{2,4})\\s*-\\s*(\\w+\\s+\\w+)$";
         Pattern dateToNamePattern = Pattern.compile(dateToNameRegex);
 
-        String dateToDateRegex = "^(\\d{1,2}/\\d{1,2}/\\d{4})\\s+-\\s+(\\d{1,2}/\\d{1,2}/\\d{4})$";
+        String dateToDateRegex = "^(\\d{1,2}/\\d{1,2}/\\d{2,4})\\s*-\\s*(\\d{1,2}/\\d{1,2}/\\d{2,4})$";
         Pattern dateToDatePattern = Pattern.compile(dateToDateRegex);
 
-        String tiePersonInfoRegex = "^([A-Z][a-z]+\\s+[A-Z][a-z]+)\\s+(\\d{1,2}/\\d{1,2}/\\d{4})$";
+        String tiePersonInfoRegex = "^(\\w+\\s+\\w+)\\s+(\\d{1,2}/\\d{1,2}/\\d{2,4})$";
         Pattern tiePersonInfoPattern = Pattern.compile(tiePersonInfoRegex);
 
         int linesCounter = 0;
@@ -107,7 +107,6 @@ public class FamilyTree {
 
                 parent.addChild(linesCounter, child);
                 child.addParent(linesCounter, parent);
-
             }
 
             if (dateToDateMatcher.find()) {
@@ -179,7 +178,6 @@ public class FamilyTree {
             System.out.println(searchPerson);
         }
     }
-
 }
 
 class Person {
@@ -209,25 +207,14 @@ class Person {
         this.children = new TreeMap<>();
     }
 
-    public String getName() {
+    public String getName() { 
+        return this.name; }
 
-        return this.name;
-    }
+    public void setName(String name) { 
+        this.name = name; }
 
-    public void setName(String name) {
-
-        this.name = name;
-    }
-
-    public LocalDate getBirthDate() {
-
-        return this.birthDate;
-    }
-
-    public void setBirthDate(LocalDate birthDate) {
-
-        this.birthDate = birthDate;
-    }
+    public void setBirthDate(LocalDate birthDate) { 
+        this.birthDate = birthDate; }
 
     public Map<Integer, Person> getParents() {
         return this.parents;
@@ -238,19 +225,17 @@ class Person {
     }
 
     public void addChild(Integer appearanceIndex, Person child) {
-
         this.children.put(appearanceIndex, child);
     }
 
     public void addParent(Integer appearanceIndex, Person parent) {
-
         this.parents.put(appearanceIndex, parent);
     }
 
     public void addChildren(Map<Integer, Person> children) {
         this.children.putAll(children);
     }
-
+    
     public void addParents(Map<Integer, Person> parents) {
         this.parents.putAll(parents);
     }
@@ -269,7 +254,6 @@ class Person {
         }
 
         return result.toString();
-
     }
 
     private String getNameAndBirthday(Person person) {
